@@ -24,10 +24,17 @@ type Provider struct {
 func (provider *Provider) Register() {
 	logger, err := provider.GetLoggerFactory().Channel("default")
 	if err == nil {
-		cron.WithLogger(
-			cron.VerbosePrintfLogger(Logger{
+		var log cron.Logger
+		if provider.GetConfig().GetString("app.env") == "debug" {
+			log = cron.VerbosePrintfLogger(Logger{
 				log: logger,
-			}))(GetCrontab())
+			})
+		} else {
+			log = cron.PrintfLogger(Logger{
+				log: logger,
+			})
+		}
+		cron.WithLogger(log)(GetCrontab())
 	}
 
 	provider.RegisterServer(&Server{})
