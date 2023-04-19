@@ -24,9 +24,10 @@ type Provider struct {
 func (provider *Provider) Register() {
 	logger, err := provider.GetLoggerFactory().Channel("default")
 	if err == nil {
-		cron.DefaultLogger = cron.VerbosePrintfLogger(Logger{
-			log: logger,
-		})
+		cron.WithLogger(
+			cron.VerbosePrintfLogger(Logger{
+				log: logger,
+			}))(GetCrontab())
 	}
 
 	provider.RegisterServer(&Server{})
