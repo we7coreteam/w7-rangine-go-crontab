@@ -3,6 +3,7 @@ package crontab
 import (
 	"fmt"
 	"github.com/robfig/cron/v3"
+	"github.com/we7coreteam/w7-rangine-go-support/src/facade"
 	"github.com/we7coreteam/w7-rangine-go-support/src/provider"
 	"go.uber.org/zap"
 )
@@ -22,10 +23,12 @@ type Provider struct {
 }
 
 func (provider *Provider) Register() {
-	logger, err := provider.GetLoggerFactory().Channel("default")
+	crontabServer := NewDefaultServer()
+
+	logger, err := facade.GetLoggerFactory().Channel("default")
 	if err == nil {
 		var log cron.Logger
-		if provider.GetConfig().GetString("app.env") == "debug" {
+		if facade.GetConfig().GetString("app.env") == "debug" {
 			log = cron.VerbosePrintfLogger(Logger{
 				log: logger,
 			})
@@ -34,8 +37,8 @@ func (provider *Provider) Register() {
 				log: logger,
 			})
 		}
-		cron.WithLogger(log)(GetCrontab())
+		cron.WithLogger(log)(crontabServer.Cron)
 	}
 
-	provider.RegisterServer(&Server{})
+	facade.RegisterServer(crontabServer)
 }
