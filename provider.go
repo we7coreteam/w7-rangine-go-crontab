@@ -3,8 +3,9 @@ package crontab
 import (
 	"fmt"
 	"github.com/robfig/cron/v3"
-	"github.com/we7coreteam/w7-rangine-go-support/src/facade"
-	"github.com/we7coreteam/w7-rangine-go-support/src/provider"
+	"github.com/spf13/viper"
+	"github.com/we7coreteam/w7-rangine-go-support/src/logger"
+	"github.com/we7coreteam/w7-rangine-go-support/src/server"
 	"go.uber.org/zap"
 )
 
@@ -19,16 +20,16 @@ func (l Logger) Printf(format string, v ...any) {
 }
 
 type Provider struct {
-	provider.Abstract
+	server *Server
 }
 
-func (provider *Provider) Register() {
+func (provider *Provider) Register(config *viper.Viper, loggerFactory logger.Factory, serverFactory server.Factory) *Provider {
 	crontabServer := NewDefaultServer()
 
-	logger, err := facade.GetLoggerFactory().Channel("default")
+	logger, err := loggerFactory.Channel("default")
 	if err == nil {
 		var log cron.Logger
-		if facade.GetConfig().GetString("app.env") == "debug" {
+		if config.GetString("app.env") == "debug" {
 			log = cron.VerbosePrintfLogger(Logger{
 				log: logger,
 			})
@@ -39,6 +40,13 @@ func (provider *Provider) Register() {
 		}
 		cron.WithLogger(log)(crontabServer.Cron)
 	}
+	provider.server = crontabServer
 
-	facade.RegisterServer(crontabServer)
+	serverFactory.RegisterServer(crontabServer)
+
+	return provider
+}
+
+func (provider *Provider) Export() *Server {
+	return provider.server
 }
