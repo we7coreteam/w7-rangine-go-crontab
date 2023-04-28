@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/viper v1.15.0
-	github.com/we7coreteam/w7-rangine-go-support v0.0.0-20230427085455-634bcd0178b7
+	github.com/we7coreteam/w7-rangine-go-support v0.0.0-20230428105720-aad263eb967a
 	go.uber.org/zap v1.24.0
 )
 

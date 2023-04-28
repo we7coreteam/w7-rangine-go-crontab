@@ -23,7 +23,7 @@ type Provider struct {
 	server *Server
 }
 
-func (provider *Provider) Register(config *viper.Viper, loggerFactory logger.Factory, serverFactory server.Factory) *Provider {
+func (provider *Provider) Register(config *viper.Viper, loggerFactory logger.Factory, serverManager server.Manager) *Provider {
 	crontabServer := NewDefaultServer()
 
 	logger, err := loggerFactory.Channel("default")
@@ -42,7 +42,7 @@ func (provider *Provider) Register(config *viper.Viper, loggerFactory logger.Fac
 	}
 	provider.server = crontabServer
 
-	serverFactory.RegisterServer(crontabServer)
+	serverManager.RegisterServer(crontabServer)
 
 	return provider
 }
